@@ -4,11 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Protocolo 72 — Você estaria preparado?</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340;9..144,440;9..144,560;9..144,650&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
 
 <style>
@@ -63,11 +61,9 @@ h1,h2,h3{ font-family:var(--font-display); font-weight:560; margin:0; letter-spa
 p{ margin:0; }
 button{ font-family:inherit; cursor:pointer; border:none; background:none; }
 img{ max-width:100%; display:block; }
-
 @media (prefers-reduced-motion: reduce){
   *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
 }
-
 .container{ max-width:640px; margin:0 auto; padding:0 24px; }
 .eyebrow{
   font-family:var(--font-mono); font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
@@ -75,9 +71,6 @@ img{ max-width:100%; display:block; }
 }
 .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--alert); }
 
-/* ==========================================================================
-   PROGRESS RAIL
-   ========================================================================== */
 .progress-rail{
   position:fixed; top:0; left:0; right:0; z-index:50;
   display:flex; justify-content:center; gap:6px;
@@ -94,20 +87,12 @@ img{ max-width:100%; display:block; }
 .progress-rail span.done{ background:var(--ink); }
 .progress-rail span.now{ background:var(--alert); width:38px; }
 
-/* ==========================================================================
-   SCREENS / FLOW
-   ========================================================================== */
 .screen{ display:none; min-height:100svh; padding:96px 0 64px; }
 .screen.active{ display:block; animation:fadeUp .7s var(--ease) both; }
 @keyframes fadeUp{
   from{ opacity:0; transform:translateY(18px); }
   to{ opacity:1; transform:translateY(0); }
 }
-.fade-in{ animation:fadeUp .6s var(--ease) both; }
-
-/* ==========================================================================
-   BUTTONS
-   ========================================================================== */
 .btn{
   display:inline-flex; align-items:center; justify-content:center; gap:10px;
   padding:17px 30px; border-radius:100px; font-weight:600; font-size:16px;
@@ -131,9 +116,7 @@ img{ max-width:100%; display:block; }
 .btn-premium:hover{ transform:translateY(-2px); box-shadow:0 26px 54px -16px rgba(90,72,199,0.62); }
 .btn-icon{ width:18px; height:18px; flex-shrink:0; }
 
-/* ==========================================================================
-   HERO
-   ========================================================================== */
+/* ===== HERO ===== */
 #hero{ min-height:100svh; display:flex; align-items:center; padding:64px 0; }
 .hero-badge{
   display:inline-flex; align-items:center; gap:8px; padding:8px 14px;
@@ -149,7 +132,6 @@ img{ max-width:100%; display:block; }
   animation:pulse 2s var(--ease) infinite;
 }
 @keyframes pulse{ 0%{transform:scale(0.6); opacity:1;} 100%{transform:scale(1.8); opacity:0;} }
-
 .hero h1{
   font-size:clamp(38px, 7vw, 58px); line-height:1.04; color:var(--ink); margin-bottom:22px;
 }
@@ -161,7 +143,6 @@ img{ max-width:100%; display:block; }
 .hero-note{
   margin-top:16px; font-size:13px; color:var(--muted); display:flex; align-items:center; gap:6px;
 }
-
 .hero-visual{
   margin-top:56px; display:flex; gap:10px; align-items:flex-end;
 }
@@ -175,9 +156,7 @@ img{ max-width:100%; display:block; }
 }
 @keyframes rise{ from{ height:0; } }
 
-/* ==========================================================================
-   SCAN / GEOLOCALIZAÇÃO
-   ========================================================================== */
+/* ===== SCAN ===== */
 #scan{ display:none; align-items:center; }
 #scan .container{ text-align:center; }
 .radar{
@@ -206,7 +185,6 @@ img{ max-width:100%; display:block; }
   animation:spin 2.4s linear infinite;
 }
 @keyframes spin{ to{ transform:rotate(360deg); } }
-
 .scan-list{ list-style:none; padding:0; margin:0 auto; max-width:340px; text-align:left; }
 .scan-list li{
   display:flex; align-items:center; gap:12px; padding:10px 0;
@@ -220,9 +198,7 @@ img{ max-width:100%; display:block; }
 }
 .scan-list li.active .mark{ background:var(--safe); border-color:var(--safe); color:#fff; }
 
-/* ==========================================================================
-   CARDS (shared)
-   ========================================================================== */
+/* ===== CARDS ===== */
 .card{
   background:var(--surface); border-radius:var(--radius-lg); padding:32px;
   box-shadow:var(--shadow-md); border:1px solid var(--line);
@@ -230,14 +206,11 @@ img{ max-width:100%; display:block; }
 }
 .card:hover{ box-shadow:var(--shadow-lg); }
 
-/* ==========================================================================
-   DIAGNÓSTICO (TELA 3)
-   ========================================================================== */
+/* ===== DIAGNÓSTICO ===== */
 #diagnostico .container{ max-width:520px; }
 .section-head{ margin-bottom:36px; }
 .section-head h2{ font-size:clamp(26px,4.6vw,32px); margin-top:10px; }
 .section-head p.sub{ color:var(--muted); font-size:15.5px; margin-top:10px; line-height:1.5; }
-
 .risk-badge{
   display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border-radius:100px;
   font-weight:600; font-size:13px; margin-bottom:22px;
@@ -246,7 +219,6 @@ img{ max-width:100%; display:block; }
 .risk-badge.moderado{ background:var(--warn-soft); color:var(--warn); }
 .risk-badge.alto{ background:var(--alert-soft); color:var(--alert); }
 .risk-badge .dot{ width:7px; height:7px; border-radius:50%; background:currentColor; }
-
 .gauge-wrap{ display:flex; flex-direction:column; align-items:center; padding:8px 0 4px; position:relative; }
 .gauge-wrap svg{ overflow:visible; position:relative; z-index:1; }
 .gauge-glow{
@@ -255,7 +227,6 @@ img{ max-width:100%; display:block; }
   background:radial-gradient(circle, rgba(11,14,26,0.10), transparent 70%);
   transition:background 1s var(--ease);
 }
-
 .kpi-row{ display:flex; gap:10px; margin-bottom:24px; }
 .kpi-tile{
   flex:1; background:var(--surface); border:1px solid var(--line); border-radius:16px;
@@ -282,15 +253,12 @@ img{ max-width:100%; display:block; }
 .gauge-mini{ text-align:center; }
 .gauge-mini .gauge-title{ font-weight:600; font-size:14px; margin-top:12px; }
 .gauge-mini .gauge-sub{ font-size:13px; color:var(--muted); margin-top:2px; }
-
 .diagnostico-explain{
   margin-top:26px; font-size:15px; line-height:1.6; color:var(--ink-soft); padding-top:22px;
   border-top:1px solid var(--line);
 }
 
-/* ==========================================================================
-   MAPA (TELA 4)
-   ========================================================================== */
+/* ===== MAPA ===== */
 #mapa .section-head{ text-align:left; }
 #map{
   width:100%; height:340px; border-radius:var(--radius-lg); overflow:hidden;
@@ -306,7 +274,6 @@ img{ max-width:100%; display:block; }
   width:16px; height:16px; border-radius:50%; background:var(--ink); border:3px solid #fff;
   box-shadow:0 0 0 3px rgba(16,23,42,0.25);
 }
-
 .ipma-loading{ font-size:14px; color:var(--muted); }
 .ipma-header{ font-size:13px; color:var(--muted); margin-bottom:14px; }
 .ipma-item{
@@ -319,15 +286,8 @@ img{ max-width:100%; display:block; }
 .ipma-item.green .ipma-dot{ margin-top:0; }
 .ipma-period{ font-family:var(--font-mono); font-size:12px; color:var(--muted); margin-top:4px; }
 .ipma-text{ font-size:13.5px; color:var(--ink-soft); margin-top:8px; line-height:1.5; }
-.pin-risk{
-  width:30px; height:30px; border-radius:50% 50% 50% 0; transform:rotate(-45deg);
-  display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); border:2px solid #fff;
-}
-.pin-risk span{ transform:rotate(45deg); font-size:14px; }
 
-/* ==========================================================================
-   QUESTIONÁRIO (TELA 5)
-   ========================================================================== */
+/* ===== QUESTIONÁRIO ===== */
 .q-progress{ font-family:var(--font-mono); font-size:13px; color:var(--muted); margin-bottom:8px; }
 .question-card{
   background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-md);
@@ -343,19 +303,14 @@ img{ max-width:100%; display:block; }
 }
 .q-btn.yes.selected{ background:var(--safe-soft); border-color:var(--safe); color:var(--safe); }
 .q-btn.no.selected{ background:var(--alert-soft); border-color:var(--alert); color:var(--alert); }
-
 .q-footer{ margin-top:28px; }
 
-/* ==========================================================================
-   RESULTADOS
-   ========================================================================== */
+/* ===== RESULTADOS ===== */
 .compare-grid{ display:flex; gap:18px; margin-bottom:32px; }
 .compare-grid .card{ flex:1; padding:24px 16px; }
-
 .interpret-card{ margin-bottom:32px; }
 .interpret-card p{ font-size:15.5px; line-height:1.65; color:var(--ink-soft); }
 .interpret-card p + p{ margin-top:12px; }
-
 .checklist{ margin-bottom:32px; }
 .checklist-item{
   display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid var(--line);
@@ -369,7 +324,6 @@ img{ max-width:100%; display:block; }
 .checklist-item.ok .ico{ background:var(--safe-soft); color:var(--safe); }
 .checklist-item.missing .ico{ background:var(--alert-soft); color:var(--alert); }
 .checklist-item.missing span.label{ color:var(--muted); }
-
 .plan-group{ margin-bottom:20px; }
 .plan-group .plan-title{
   display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12px;
@@ -381,18 +335,14 @@ img{ max-width:100%; display:block; }
   background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px;
   font-size:14.5px; margin-bottom:8px;
 }
-
 .pdf-cta{ margin:36px 0 8px; }
 
-/* ==========================================================================
-   PREMIUM
-   ========================================================================== */
+/* ===== PREMIUM ===== */
 #premium{ background:var(--ink); color:#fff; border-radius:var(--radius-lg) var(--radius-lg) 0 0; margin-top:20px; }
 #premium .eyebrow{ color:rgba(255,255,255,0.55); }
 #premium .eyebrow .dot{ background:#C3B8F5; }
 #premium h2{ color:#fff; font-size:clamp(28px,5vw,38px); margin-top:14px; }
 #premium p.lead{ color:rgba(255,255,255,0.68); font-size:16px; line-height:1.6; margin-top:16px; max-width:480px; }
-
 .premium-card{
   margin-top:40px; background:linear-gradient(165deg, #1B1440, #100C2B); border-radius:var(--radius-lg);
   padding:36px 28px; border:1px solid rgba(255,255,255,0.08); box-shadow:0 30px 80px -30px rgba(90,72,199,0.5);
@@ -409,22 +359,18 @@ img{ max-width:100%; display:block; }
   padding:14px 16px; font-size:13.5px; color:rgba(255,255,255,0.85); display:flex; gap:10px; align-items:flex-start;
 }
 .benefit .check{ color:#C3B8F5; flex-shrink:0; margin-top:1px; }
-
 .toast{
   position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(120%);
   background:var(--ink); color:#fff; padding:14px 22px; border-radius:100px; font-size:14px;
   box-shadow:var(--shadow-lg); transition:transform .4s var(--ease); z-index:100; font-weight:500;
 }
 .toast.show{ transform:translateX(-50%) translateY(0); }
-
 footer.app-footer{
   background:var(--ink); color:rgba(255,255,255,0.4); text-align:center; padding:26px; font-size:12.5px;
   border-radius:0;
 }
+.version-tag{ font-family:var(--font-mono); font-size:11px; color:rgba(255,255,255,0.3); margin-top:6px; }
 
-/* ==========================================================================
-   RESPONSIVE
-   ========================================================================== */
 @media (max-width:560px){
   .container{ padding:0 20px; }
   .compare-grid{ flex-direction:column; }
@@ -437,17 +383,12 @@ footer.app-footer{
 </head>
 <body>
 
-<!-- ========================================================================
-     PROGRESS RAIL
-     ======================================================================== -->
 <div class="progress-rail" id="progressRail">
   <span data-step="0"></span><span data-step="1"></span><span data-step="2"></span>
   <span data-step="3"></span><span data-step="4"></span><span data-step="5"></span>
 </div>
 
-<!-- ========================================================================
-     HERO
-     ======================================================================== -->
+<!-- ===== HERO ===== -->
 <section id="hero" class="screen active">
   <div class="container">
     <div class="hero-badge"><span class="pulse"></span> Diagnóstico gratuito · leva 30 segundos</div>
@@ -473,9 +414,7 @@ footer.app-footer{
   </div>
 </section>
 
-<!-- ========================================================================
-     GEOLOCALIZAÇÃO / SCAN (TELA 2)
-     ======================================================================== -->
+<!-- ===== SCAN ===== -->
 <section id="scan" class="screen">
   <div class="container">
     <div class="radar">
@@ -492,16 +431,13 @@ footer.app-footer{
   </div>
 </section>
 
-<!-- ========================================================================
-     DIAGNÓSTICO (TELA 3)
-     ======================================================================== -->
+<!-- ===== DIAGNÓSTICO ===== -->
 <section id="diagnostico" class="screen">
   <div class="container">
     <div class="eyebrow"><span class="dot"></span> Diagnóstico ambiental</div>
     <div class="card" style="margin-top:18px;">
       <span class="risk-badge" id="riskBadge"></span>
       <h2 style="font-size:22px; margin-bottom:24px;">Nível de exposição atual da sua região</h2>
-
       <div class="gauge-wrap">
         <div class="gauge-glow"></div>
         <svg width="200" height="200" viewBox="0 0 200 200">
@@ -513,7 +449,6 @@ footer.app-footer{
         </svg>
         <div class="gauge-label">Índice Protocolo 72</div>
       </div>
-
       <p class="diagnostico-explain" id="diagnosticoExplain"></p>
     </div>
     <div style="margin-top:28px;">
@@ -525,9 +460,7 @@ footer.app-footer{
   </div>
 </section>
 
-<!-- ========================================================================
-     MAPA (TELA 4)
-     ======================================================================== -->
+<!-- ===== MAPA ===== -->
 <section id="mapa" class="screen">
   <div class="container">
     <div class="eyebrow"><span class="dot"></span> Panorama geográfico</div>
@@ -540,12 +473,10 @@ footer.app-footer{
       <span>🌧️ Precipitação em tempo real</span><span>📍 Sua localização</span>
     </div>
     <p style="font-size:12.5px; color:var(--muted); margin:-16px 0 24px;">Mapa-base: OpenStreetMap. Camada de chuva/radar: OpenWeatherMap.</p>
-
     <h3 style="font-size:19px; margin-bottom:14px;">Avisos meteorológicos (IPMA)</h3>
     <div class="card" id="ipmaWarnings" style="margin-bottom:28px;">
       <p class="ipma-loading">Aguardando localização...</p>
     </div>
-
     <button class="btn btn-primary" onclick="goToQuestionario()">
       Avaliar minha preparação
       <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -553,9 +484,7 @@ footer.app-footer{
   </div>
 </section>
 
-<!-- ========================================================================
-     QUESTIONÁRIO (TELA 5)
-     ======================================================================== -->
+<!-- ===== QUESTIONÁRIO ===== -->
 <section id="questionario" class="screen">
   <div class="container">
     <div class="eyebrow"><span class="dot"></span> Avaliação de preparação</div>
@@ -573,16 +502,13 @@ footer.app-footer{
   </div>
 </section>
 
-<!-- ========================================================================
-     RESULTADOS
-     ======================================================================== -->
+<!-- ===== RESULTADOS ===== -->
 <section id="resultados" class="screen">
   <div class="container">
     <div class="eyebrow"><span class="dot"></span> Seu diagnóstico completo</div>
     <div class="section-head">
       <h2>Índice de Preparação</h2>
     </div>
-
     <div class="kpi-row">
       <div class="kpi-tile">
         <div class="kpi-icon" style="background:var(--safe-soft); color:var(--safe);">
@@ -606,7 +532,6 @@ footer.app-footer{
         <div class="kpi-label">Itens pendentes</div>
       </div>
     </div>
-
     <div class="card" style="text-align:center; margin-bottom:32px;">
       <div class="gauge-wrap">
         <div class="gauge-glow"></div>
@@ -619,11 +544,7 @@ footer.app-footer{
         </svg>
       </div>
     </div>
-
-    <div class="card interpret-card">
-      <p id="interpretText"></p>
-    </div>
-
+    <div class="card interpret-card"><p id="interpretText"></p></div>
     <div class="compare-grid">
       <div class="card gauge-mini">
         <svg width="120" height="120" viewBox="0 0 200 200">
@@ -646,20 +567,16 @@ footer.app-footer{
         <div class="gauge-sub">Você</div>
       </div>
     </div>
-
     <h3 style="font-size:19px; margin-bottom:16px;">Checklist</h3>
     <div class="card checklist" id="checklistWrap"></div>
-
     <h3 style="font-size:19px; margin:32px 0 16px;">Plano de ação</h3>
     <div id="planWrap"></div>
-
     <div class="pdf-cta">
       <button class="btn btn-secondary" onclick="generatePDF()">
         <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
         Baixar relatório em PDF
       </button>
     </div>
-
     <button class="btn btn-primary" style="margin-top:14px;" onclick="goTo('premium')">
       Ver próximo passo
       <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -667,15 +584,12 @@ footer.app-footer{
   </div>
 </section>
 
-<!-- ========================================================================
-     PREMIUM
-     ======================================================================== -->
+<!-- ===== PREMIUM ===== -->
 <section id="premium" class="screen">
   <div class="container" style="padding-top:64px;">
     <div class="eyebrow"><span class="dot"></span> Próximo passo</div>
     <h2>Você sobreviveria<br>sozinho por 72 horas?</h2>
     <p class="lead">O diagnóstico mostrou onde você está. O Guia Protocolo 72 mostra exatamente como chegar aonde você precisa estar — passo a passo, sem complicação.</p>
-
     <div class="premium-card">
       <span class="premium-tag">Guia Protocolo 72</span>
       <h3>Tudo que falta para fechar as lacunas do seu diagnóstico</h3>
@@ -694,7 +608,10 @@ footer.app-footer{
       </button>
     </div>
   </div>
-  <footer class="app-footer">PROTOCOLO 72 — Diagnóstico de preparação para emergências · Dados de precipitação: OpenWeatherMap · Avisos: IPMA</footer>
+  <footer class="app-footer">
+    PROTOCOLO 72 — Diagnóstico de preparação para emergências · Dados: IPMA / OpenWeatherMap
+    <div class="version-tag">v8.0 — scroll automático</div>
+  </footer>
 </section>
 
 <div class="toast" id="toast"></div>
@@ -702,14 +619,11 @@ footer.app-footer{
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<!-- ========================================================================
-     JAVASCRIPT
-     ======================================================================== -->
 <script>
 (function(){
   "use strict";
 
-  /* -------------------- STATE -------------------- */
+  /* ===== STATE ===== */
   var state = {
     coords: null,
     riskLevel: null,
@@ -718,7 +632,7 @@ footer.app-footer{
     prepScore: 0,
     answers: {},
     mapInstance: null,
-    ipmaWarnings: []  // guarda os avisos ativos
+    ipmaWarnings: []
   };
 
   var SCREENS = ['hero','scan','diagnostico','mapa','questionario','resultados','premium'];
@@ -737,18 +651,17 @@ footer.app-footer{
   ];
 
   var PRIORITY_LABEL = { alta:'Prioridade alta', media:'Prioridade média', baixa:'Prioridade baixa' };
+  var OWM_KEY = '1d2cebfe53de25a478badceaaba65a83';
 
-  /* -------------------- CHAVES E CONFIGURAÇÕES -------------------- */
-  var OWM_KEY = '1d2cebfe53de25a478badceaaba65a83'; // substitua pela sua chave se necessário
-
-  /* -------------------- HELPERS -------------------- */
+  /* ===== HELPERS ===== */
   function $(id){ return document.getElementById(id); }
   function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
 
   function goTo(name){
     SCREENS.forEach(function(s){ $(s).classList.remove('active'); });
     $(name).classList.add('active');
-    window.scrollTo(0, 0);
+    // Scroll suave para o topo — ESSA É A CORREÇÃO DO SCROLL
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     updateProgress(name);
   }
 
@@ -812,7 +725,7 @@ footer.app-footer{
     countTo($(numId), value, suffix || '', 1300);
   }
 
-  /* -------------------- FUNÇÕES DE DISTÂNCIA E TIMEOUT -------------------- */
+  /* ===== IPMA ===== */
   function haversineKm(lat1, lng1, lat2, lng2){
     var R = 6371;
     var dLat = (lat2 - lat1) * Math.PI / 180;
@@ -830,7 +743,6 @@ footer.app-footer{
     ]);
   }
 
-  /* -------------------- IPMA: OBTENÇÃO DE AVISOS REAIS -------------------- */
   function findNearestIpmaArea(lat, lng){
     return withTimeout(fetch('https://api.ipma.pt/open-data/distrits-islands.json'), 5000)
       .then(function(res){ if(!res.ok) throw new Error('ipma-locations-http-' + res.status); return res.json(); })
@@ -862,7 +774,6 @@ footer.app-footer{
             });
             state.ipmaWarnings = active;
             renderIpmaWarnings(area, active);
-            // Usa o aviso mais grave para definir o risco
             defineRiskFromIpma(active);
           });
       })
@@ -870,7 +781,6 @@ footer.app-footer{
         console.warn('Erro ao obter avisos IPMA, usando fallback:', err);
         state.ipmaWarnings = [];
         renderIpmaWarnings(null, []);
-        // Fallback: risco baseado em geolocalização (latitude)
         var fallbackRisk = Math.abs(lat) > 60 ? 'alto' : (Math.abs(lat) > 40 ? 'moderado' : 'baixo');
         state.riskLevel = fallbackRisk;
         state.riskScore = fallbackRisk === 'alto' ? rand(70,92) : (fallbackRisk === 'moderado' ? rand(38,66) : rand(12,34));
@@ -910,10 +820,8 @@ footer.app-footer{
     wrap.innerHTML = html;
   }
 
-  // Define risco com base nos avisos ativos (nível mais grave)
   function defineRiskFromIpma(warnings){
     if(!warnings || warnings.length === 0){
-      // fallback para baixo risco
       state.riskLevel = 'baixo';
       state.riskScore = rand(12,34);
       state.indiceProtocolo72 = state.riskScore;
@@ -934,7 +842,7 @@ footer.app-footer{
     renderDiagnostico();
   }
 
-  /* -------------------- TELA 2: SCAN -------------------- */
+  /* ===== SCAN ===== */
   window.startScan = function(){
     goTo('scan');
     var items = document.querySelectorAll('#scanList li');
@@ -943,7 +851,7 @@ footer.app-footer{
     if(navigator.geolocation){
       navigator.geolocation.getCurrentPosition(
         function(pos){ state.coords = { lat: pos.coords.latitude, lng: pos.coords.longitude }; },
-        function(){ state.coords = { lat: 38.7223, lng: -9.1393 }; }, // fallback: Lisboa
+        function(){ state.coords = { lat: 38.7223, lng: -9.1393 }; },
         { timeout: 3000, enableHighAccuracy: true }
       );
     } else {
@@ -956,9 +864,7 @@ footer.app-footer{
 
     setTimeout(function(){
       if(!state.coords) state.coords = { lat: 38.7223, lng: -9.1393 };
-      // Busca avisos IPMA e define risco
       fetchIpmaWarnings(state.coords.lat, state.coords.lng);
-      // Se por algum motivo o risco ainda não foi definido, define fallback
       if(!state.riskLevel){
         state.riskLevel = 'baixo';
         state.riskScore = rand(12,34);
@@ -969,7 +875,7 @@ footer.app-footer{
     }, 380 * items.length + 400);
   };
 
-  /* -------------------- DIAGNÓSTICO -------------------- */
+  /* ===== DIAGNÓSTICO ===== */
   var RISK_COPY = {
     baixo: 'A sua região apresenta, neste momento, baixo risco meteorológico. Mantenha-se informado e preserve um kit básico de emergência — a preparação começa antes do aviso.',
     moderado: 'A sua região está sob risco moderado de fenómenos meteorológicos. Tenha atenção aos avisos oficiais e verifique se o seu kit de emergência está acessível.',
@@ -990,11 +896,10 @@ footer.app-footer{
     setGauge('gaugeIndice', 'gaugeIndiceNum', state.indiceProtocolo72, '', riskColor(state.riskLevel));
   }
 
-  /* -------------------- TELA 4: MAPA -------------------- */
+  /* ===== MAPA ===== */
   window.goToMap = function(){
     goTo('mapa');
     setTimeout(initMap, 150);
-    // Se já tiver avisos, não precisa buscar de novo, mas garante
     if(state.ipmaWarnings.length === 0 && state.coords){
       fetchIpmaWarnings(state.coords.lat, state.coords.lng);
     }
@@ -1009,26 +914,21 @@ footer.app-footer{
       attribution:'&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Camada de precipitação OpenWeatherMap
     try {
       L.tileLayer('https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=' + OWM_KEY, {
         maxZoom:18,
         opacity:0.75,
         attribution:'&copy; OpenWeatherMap'
       }).addTo(map);
-    } catch(e) {
-      console.warn('Erro ao carregar camada de precipitação:', e);
-    }
+    } catch(e) {}
 
     L.control.zoom({ position:'bottomright' }).addTo(map);
-
     var userIcon = L.divIcon({ className:'', html:'<div class="pin-user"></div>', iconSize:[16,16] });
     L.marker([lat, lng], { icon:userIcon }).addTo(map).bindPopup('Sua localização aproximada');
-
     state.mapInstance = map;
   }
 
-  /* -------------------- TELA 5: QUESTIONÁRIO -------------------- */
+  /* ===== QUESTIONÁRIO ===== */
   window.goToQuestionario = function(){
     renderQuestions();
     goTo('questionario');
@@ -1069,12 +969,11 @@ footer.app-footer{
     }
   }
 
-  /* -------------------- RESULTADOS -------------------- */
+  /* ===== RESULTADOS ===== */
   function interpretation(){
     var risk = state.riskLevel;
     var prep = state.prepScore;
     var prepLevel = prep >= 70 ? 'alta' : (prep >= 40 ? 'moderada' : 'baixa');
-
     var p1 = 'Sua região apresenta risco ' + risk + ' e sua preparação atual é ' + prepLevel + '.';
     var p2;
     if(risk !== 'baixo' && prepLevel === 'baixa'){
@@ -1128,12 +1027,10 @@ footer.app-footer{
     var wrap = $('planWrap');
     wrap.innerHTML = '';
     var missing = QUESTIONS.filter(function(q){ return !state.answers[q.id]; });
-
     if(missing.length === 0){
       wrap.innerHTML = '<div class="card" style="text-align:center; color:var(--muted); font-size:14.5px;">Nenhuma ação pendente. Continue revisando seu kit periodicamente.</div>';
       return;
     }
-
     ['alta','media','baixa'].forEach(function(level){
       var items = missing.filter(function(q){ return q.priority === level; });
       if(items.length === 0) return;
@@ -1146,7 +1043,7 @@ footer.app-footer{
     });
   }
 
-  /* -------------------- PDF -------------------- */
+  /* ===== PDF ===== */
   window.generatePDF = function(){
     try{
       var jsPDFLib = window.jspdf.jsPDF;
@@ -1217,7 +1114,6 @@ footer.app-footer{
         y += 8;
       });
 
-      // Se houver avisos IPMA, adiciona ao PDF
       if(state.ipmaWarnings && state.ipmaWarnings.length > 0){
         if(y > 760){ doc.addPage(); y = 60; }
         y += 8;
@@ -1236,12 +1132,10 @@ footer.app-footer{
 
       doc.setFontSize(9);
       doc.setTextColor(120,120,120);
-      doc.text('Relatório gerado automaticamente pelo Protocolo 72 · Dados de precipitação: OpenWeatherMap · Avisos: IPMA.', margin, 820);
-
+      doc.text('Relatório gerado automaticamente pelo Protocolo 72 · Dados: IPMA / OpenWeatherMap', margin, 820);
       doc.save('protocolo-72-relatorio.pdf');
       showToast('Relatório baixado com sucesso.');
     } catch(err){
-      console.error(err);
       showToast('Não foi possível gerar o PDF agora.');
     }
   };
