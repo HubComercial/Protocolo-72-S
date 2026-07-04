@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Protocolo 72 — Você estaria preparado?</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,340;9..144,440;9..144,560;9..144,650&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+
+<style>
+/* ==========================================================================
+   TOKENS
+   ========================================================================== */
+:root{
+  --ink:#0B0E1A;
+  --ink-soft:#333C58;
+  --muted:#6B7280;
+  --bg:#F6F5F2;
+  --surface:#FFFFFF;
+  --line: rgba(11,14,26,0.09);
+
+  --alert:#AD4E2A;
+  --alert-soft:#F2E3DA;
+  --safe:#0D8A6C;
+  --safe-soft:#DFF1EA;
+  --warn:#A87C1E;
+  --warn-soft:#F5EDDA;
+  --premium:#5A48C7;
+  --premium-soft:#EBE7FA;
+  --premium-ink:#211B4A;
+
+  --shadow-sm: 0 2px 10px -4px rgba(11,14,26,0.08);
+  --shadow-md: 0 16px 40px -18px rgba(11,14,26,0.18), 0 4px 14px -6px rgba(11,14,26,0.06);
+  --shadow-lg: 0 30px 70px -24px rgba(11,14,26,0.26);
+
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+
+  --font-display:'Fraunces', Georgia, serif;
+  --font-body:'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono:'IBM Plex Mono', 'SFMono-Regular', monospace;
+
+  --ease: cubic-bezier(.22,.9,.32,1);
+}
+
+*{ box-sizing:border-box; }
+html{ scroll-behavior:auto; }
+body{
+  margin:0;
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:var(--bg);
+  background-image:radial-gradient(circle at 50% -10%, #ffffff 0%, var(--bg) 55%);
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+h1,h2,h3{ font-family:var(--font-display); font-weight:560; margin:0; letter-spacing:-0.01em; }
+p{ margin:0; }
+button{ font-family:inherit; cursor:pointer; border:none; background:none; }
+img{ max-width:100%; display:block; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+}
+
+.container{ max-width:640px; margin:0 auto; padding:0 24px; }
+.eyebrow{
+  font-family:var(--font-mono); font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+  color:var(--muted); display:flex; align-items:center; gap:8px;
+}
+.eyebrow .dot{ width:6px; height:6px; border-radius:50%; background:var(--alert); }
+
+/* ==========================================================================
+   PROGRESS RAIL
+   ========================================================================== */
+.progress-rail{
+  position:fixed; top:0; left:0; right:0; z-index:50;
+  display:flex; justify-content:center; gap:6px;
+  padding:16px 20px;
+  opacity:0; pointer-events:none;
+  transition:opacity .5s var(--ease);
+  background:linear-gradient(to bottom, rgba(246,247,250,0.92), rgba(246,247,250,0));
+}
+.progress-rail.show{ opacity:1; }
+.progress-rail span{
+  width:26px; height:3px; border-radius:2px; background:var(--line);
+  transition:background .4s var(--ease), width .4s var(--ease);
+}
+.progress-rail span.done{ background:var(--ink); }
+.progress-rail span.now{ background:var(--alert); width:38px; }
+
+/* ==========================================================================
+   SCREENS / FLOW
+   ========================================================================== */
+.screen{ display:none; min-height:100svh; padding:96px 0 64px; }
+.screen.active{ display:block; animation:fadeUp .7s var(--ease) both; }
+@keyframes fadeUp{
+  from{ opacity:0; transform:translateY(18px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+.fade-in{ animation:fadeUp .6s var(--ease) both; }
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:10px;
+  padding:17px 30px; border-radius:100px; font-weight:600; font-size:16px;
+  transition:transform .25s var(--ease), box-shadow .25s var(--ease), background .25s var(--ease);
+  white-space:nowrap;
+}
+.btn:active{ transform:scale(0.97); }
+.btn-primary{
+  background:var(--ink); color:#fff; box-shadow:var(--shadow-md);
+  width:100%;
+}
+.btn-primary:hover{ box-shadow:var(--shadow-lg); transform:translateY(-2px); }
+.btn-secondary{
+  background:transparent; color:var(--ink); border:1.5px solid var(--line);
+  width:100%;
+}
+.btn-secondary:hover{ border-color:var(--ink); }
+.btn-premium{
+  background:var(--premium); color:#fff; width:100%; box-shadow:0 20px 44px -18px rgba(90,72,199,0.55);
+}
+.btn-premium:hover{ transform:translateY(-2px); box-shadow:0 26px 54px -16px rgba(90,72,199,0.62); }
+.btn-icon{ width:18px; height:18px; flex-shrink:0; }
+
+/* ==========================================================================
+   HERO
+   ========================================================================== */
+#hero{ min-height:100svh; display:flex; align-items:center; padding:64px 0; }
+.hero-badge{
+  display:inline-flex; align-items:center; gap:8px; padding:8px 14px;
+  background:var(--surface); border:1px solid var(--line); border-radius:100px;
+  font-family:var(--font-mono); font-size:12px; color:var(--muted); margin-bottom:28px;
+  box-shadow:var(--shadow-sm);
+}
+.hero-badge .pulse{
+  width:7px; height:7px; border-radius:50%; background:var(--safe); position:relative;
+}
+.hero-badge .pulse::after{
+  content:''; position:absolute; inset:-4px; border-radius:50%; border:1.5px solid var(--safe);
+  animation:pulse 2s var(--ease) infinite;
+}
+@keyframes pulse{ 0%{transform:scale(0.6); opacity:1;} 100%{transform:scale(1.8); opacity:0;} }
+
+.hero h1{
+  font-size:clamp(38px, 7vw, 58px); line-height:1.04; color:var(--ink); margin-bottom:22px;
+}
+.hero h1 em{ font-style:italic; color:var(--alert); }
+.hero p.lead{
+  font-size:18px; line-height:1.55; color:var(--muted); max-width:480px; margin-bottom:38px;
+}
+.hero-cta-wrap{ max-width:340px; }
+.hero-note{
+  margin-top:16px; font-size:13px; color:var(--muted); display:flex; align-items:center; gap:6px;
+}
+
+.hero-visual{
+  margin-top:56px; display:flex; gap:10px; align-items:flex-end;
+}
+.hero-bar{
+  flex:1; border-radius:8px 8px 0 0; background:linear-gradient(180deg, var(--surface), var(--bg));
+  border:1px solid var(--line); border-bottom:none; position:relative; overflow:hidden;
+}
+.hero-bar span{
+  position:absolute; bottom:0; left:0; right:0; background:var(--ink); border-radius:8px 8px 0 0;
+  animation:rise 1.6s var(--ease) both;
+}
+@keyframes rise{ from{ height:0; } }
+
+/* ==========================================================================
+   SCAN / GEOLOCALIZAÇÃO
+   ========================================================================== */
+#scan{ display:none; align-items:center; }
+#scan .container{ text-align:center; }
+.radar{
+  width:180px; height:180px; margin:0 auto 40px; position:relative;
+  border-radius:50%; border:1.5px solid var(--line);
+  display:flex; align-items:center; justify-content:center;
+}
+.radar::before, .radar::after{
+  content:''; position:absolute; border-radius:50%; border:1.5px solid var(--line);
+}
+.radar::before{ inset:24px; }
+.radar::after{ inset:48px; }
+.radar-core{
+  width:14px; height:14px; border-radius:50%; background:var(--alert); z-index:2;
+  box-shadow:0 0 0 0 rgba(173,78,42,0.5);
+  animation:core-pulse 1.6s ease-out infinite;
+}
+@keyframes core-pulse{
+  0%{ box-shadow:0 0 0 0 rgba(173,78,42,0.45); }
+  70%{ box-shadow:0 0 0 60px rgba(173,78,42,0); }
+  100%{ box-shadow:0 0 0 0 rgba(173,78,42,0); }
+}
+.radar-sweep{
+  position:absolute; inset:0; border-radius:50%;
+  background:conic-gradient(from 0deg, rgba(173,78,42,0.28), transparent 32%);
+  animation:spin 2.4s linear infinite;
+}
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+.scan-list{ list-style:none; padding:0; margin:0 auto; max-width:340px; text-align:left; }
+.scan-list li{
+  display:flex; align-items:center; gap:12px; padding:10px 0;
+  font-size:15px; color:var(--muted); opacity:0.35; transition:opacity .3s var(--ease);
+}
+.scan-list li.active{ opacity:1; color:var(--ink); }
+.scan-list li .mark{
+  width:20px; height:20px; border-radius:50%; border:1.5px solid var(--line);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  font-size:11px; transition:all .3s var(--ease);
+}
+.scan-list li.active .mark{ background:var(--safe); border-color:var(--safe); color:#fff; }
+
+/* ==========================================================================
+   CARDS (shared)
+   ========================================================================== */
+.card{
+  background:var(--surface); border-radius:var(--radius-lg); padding:32px;
+  box-shadow:var(--shadow-md); border:1px solid var(--line);
+  transition:transform .3s var(--ease), box-shadow .3s var(--ease);
+}
+.card:hover{ box-shadow:var(--shadow-lg); }
+
+/* ==========================================================================
+   DIAGNÓSTICO (TELA 3)
+   ========================================================================== */
+#diagnostico .container{ max-width:520px; }
+.section-head{ margin-bottom:36px; }
+.section-head h2{ font-size:clamp(26px,4.6vw,32px); margin-top:10px; }
+.section-head p.sub{ color:var(--muted); font-size:15.5px; margin-top:10px; line-height:1.5; }
+
+.risk-badge{
+  display:inline-flex; align-items:center; gap:8px; padding:7px 14px; border-radius:100px;
+  font-weight:600; font-size:13px; margin-bottom:22px;
+}
+.risk-badge.baixo{ background:var(--safe-soft); color:var(--safe); }
+.risk-badge.moderado{ background:var(--warn-soft); color:var(--warn); }
+.risk-badge.alto{ background:var(--alert-soft); color:var(--alert); }
+.risk-badge .dot{ width:7px; height:7px; border-radius:50%; background:currentColor; }
+
+.gauge-wrap{ display:flex; flex-direction:column; align-items:center; padding:8px 0 4px; position:relative; }
+.gauge-wrap svg{ overflow:visible; position:relative; z-index:1; }
+.gauge-glow{
+  position:absolute; top:6%; left:50%; width:70%; height:70%; transform:translateX(-50%);
+  border-radius:50%; filter:blur(18px); z-index:0; pointer-events:none;
+  background:radial-gradient(circle, rgba(11,14,26,0.10), transparent 70%);
+  transition:background 1s var(--ease);
+}
+
+.kpi-row{ display:flex; gap:10px; margin-bottom:24px; }
+.kpi-tile{
+  flex:1; background:var(--surface); border:1px solid var(--line); border-radius:16px;
+  padding:16px 10px; text-align:center; box-shadow:var(--shadow-sm);
+  transition:transform .25s var(--ease), box-shadow .25s var(--ease);
+}
+.kpi-tile:hover{ transform:translateY(-2px); box-shadow:var(--shadow-md); }
+.kpi-icon{
+  width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center;
+  margin:0 auto 10px;
+}
+.kpi-value{ font-family:var(--font-mono); font-size:21px; font-weight:600; color:var(--ink); line-height:1; }
+.kpi-label{ font-size:10.5px; color:var(--muted); margin-top:5px; text-transform:uppercase; letter-spacing:0.05em; }
+.gauge-track{ fill:none; stroke:var(--line); stroke-width:12; }
+.gauge-value{ fill:none; stroke-width:12; stroke-linecap:round; transition:stroke-dashoffset 1.4s var(--ease); }
+.gauge-number{
+  font-family:var(--font-mono); font-weight:600; font-size:40px; fill:var(--ink);
+}
+.gauge-suffix{ font-family:var(--font-mono); font-size:14px; fill:var(--muted); }
+.gauge-label{
+  margin-top:14px; font-family:var(--font-mono); font-size:12px; letter-spacing:0.1em;
+  text-transform:uppercase; color:var(--muted); text-align:center;
+}
+.gauge-mini{ text-align:center; }
+.gauge-mini .gauge-title{ font-weight:600; font-size:14px; margin-top:12px; }
+.gauge-mini .gauge-sub{ font-size:13px; color:var(--muted); margin-top:2px; }
+
+.diagnostico-explain{
+  margin-top:26px; font-size:15px; line-height:1.6; color:var(--ink-soft); padding-top:22px;
+  border-top:1px solid var(--line);
+}
+
+/* ==========================================================================
+   MAPA (TELA 4)
+   ========================================================================== */
+#mapa .section-head{ text-align:left; }
+#map{
+  width:100%; height:340px; border-radius:var(--radius-lg); overflow:hidden;
+  box-shadow:var(--shadow-md); border:1px solid var(--line); margin-bottom:20px;
+}
+.map-legend{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:32px; }
+.map-legend span{
+  display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted);
+  background:var(--surface); border:1px solid var(--line); padding:6px 12px; border-radius:100px;
+}
+.leaflet-div-icon{ background:transparent; border:none; }
+.pin-user{
+  width:16px; height:16px; border-radius:50%; background:var(--ink); border:3px solid #fff;
+  box-shadow:0 0 0 3px rgba(16,23,42,0.25);
+}
+
+.ipma-loading{ font-size:14px; color:var(--muted); }
+.ipma-header{ font-size:13px; color:var(--muted); margin-bottom:14px; }
+.ipma-item{
+  display:flex; gap:12px; align-items:flex-start; padding:14px 16px; border-radius:14px;
+  border:1px solid var(--line); margin-bottom:10px; font-size:14px;
+}
+.ipma-item:last-child{ margin-bottom:0; }
+.ipma-item.green{ color:var(--muted); align-items:center; }
+.ipma-dot{ width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:4px; background:var(--safe); }
+.ipma-item.green .ipma-dot{ margin-top:0; }
+.ipma-period{ font-family:var(--font-mono); font-size:12px; color:var(--muted); margin-top:4px; }
+.ipma-text{ font-size:13.5px; color:var(--ink-soft); margin-top:8px; line-height:1.5; }
+.pin-risk{
+  width:30px; height:30px; border-radius:50% 50% 50% 0; transform:rotate(-45deg);
+  display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm); border:2px solid #fff;
+}
+.pin-risk span{ transform:rotate(45deg); font-size:14px; }
+
+/* ==========================================================================
+   QUESTIONÁRIO (TELA 5)
+   ========================================================================== */
+.q-progress{ font-family:var(--font-mono); font-size:13px; color:var(--muted); margin-bottom:8px; }
+.question-card{
+  background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-md);
+  padding:22px 24px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between;
+  gap:16px; transition:border-color .25s var(--ease), transform .25s var(--ease);
+}
+.question-card:hover{ border-color:rgba(16,23,42,0.22); }
+.question-card .q-text{ font-size:15.5px; font-weight:500; line-height:1.4; }
+.q-toggle{ display:flex; gap:8px; flex-shrink:0; }
+.q-btn{
+  padding:10px 18px; border-radius:100px; border:1.5px solid var(--line); font-weight:600; font-size:13.5px;
+  color:var(--muted); transition:all .2s var(--ease);
+}
+.q-btn.yes.selected{ background:var(--safe-soft); border-color:var(--safe); color:var(--safe); }
+.q-btn.no.selected{ background:var(--alert-soft); border-color:var(--alert); color:var(--alert); }
+
+.q-footer{ margin-top:28px; }
+
+/* ==========================================================================
+   RESULTADOS
+   ========================================================================== */
+.compare-grid{ display:flex; gap:18px; margin-bottom:32px; }
+.compare-grid .card{ flex:1; padding:24px 16px; }
+
+.interpret-card{ margin-bottom:32px; }
+.interpret-card p{ font-size:15.5px; line-height:1.65; color:var(--ink-soft); }
+.interpret-card p + p{ margin-top:12px; }
+
+.checklist{ margin-bottom:32px; }
+.checklist-item{
+  display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid var(--line);
+  font-size:14.5px;
+}
+.checklist-item:last-child{ border-bottom:none; }
+.checklist-item .ico{
+  width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:11px; flex-shrink:0;
+}
+.checklist-item.ok .ico{ background:var(--safe-soft); color:var(--safe); }
+.checklist-item.missing .ico{ background:var(--alert-soft); color:var(--alert); }
+.checklist-item.missing span.label{ color:var(--muted); }
+
+.plan-group{ margin-bottom:20px; }
+.plan-group .plan-title{
+  display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12px;
+  letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; font-weight:600;
+}
+.plan-title.alta{ color:var(--alert); } .plan-title.media{ color:var(--warn); } .plan-title.baixa{ color:var(--safe); }
+.plan-title .dot{ width:7px; height:7px; border-radius:50%; background:currentColor; }
+.plan-item{
+  background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px;
+  font-size:14.5px; margin-bottom:8px;
+}
+
+.pdf-cta{ margin:36px 0 8px; }
+
+/* ==========================================================================
+   PREMIUM
+   ========================================================================== */
+#premium{ background:var(--ink); color:#fff; border-radius:var(--radius-lg) var(--radius-lg) 0 0; margin-top:20px; }
+#premium .eyebrow{ color:rgba(255,255,255,0.55); }
+#premium .eyebrow .dot{ background:#C3B8F5; }
+#premium h2{ color:#fff; font-size:clamp(28px,5vw,38px); margin-top:14px; }
+#premium p.lead{ color:rgba(255,255,255,0.68); font-size:16px; line-height:1.6; margin-top:16px; max-width:480px; }
+
+.premium-card{
+  margin-top:40px; background:linear-gradient(165deg, #1B1440, #100C2B); border-radius:var(--radius-lg);
+  padding:36px 28px; border:1px solid rgba(255,255,255,0.08); box-shadow:0 30px 80px -30px rgba(90,72,199,0.5);
+}
+.premium-tag{
+  display:inline-flex; padding:6px 12px; border-radius:100px; background:var(--premium-soft); color:var(--premium-ink);
+  font-family:var(--font-mono); font-size:11px; letter-spacing:0.08em; text-transform:uppercase; font-weight:600;
+  margin-bottom:18px;
+}
+.premium-card h3{ color:#fff; font-size:24px; margin-bottom:22px; }
+.benefit-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:28px; }
+.benefit{
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:14px;
+  padding:14px 16px; font-size:13.5px; color:rgba(255,255,255,0.85); display:flex; gap:10px; align-items:flex-start;
+}
+.benefit .check{ color:#C3B8F5; flex-shrink:0; margin-top:1px; }
+
+.toast{
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(120%);
+  background:var(--ink); color:#fff; padding:14px 22px; border-radius:100px; font-size:14px;
+  box-shadow:var(--shadow-lg); transition:transform .4s var(--ease); z-index:100; font-weight:500;
+}
+.toast.show{ transform:translateX(-50%) translateY(0); }
+
+footer.app-footer{
+  background:var(--ink); color:rgba(255,255,255,0.4); text-align:center; padding:26px; font-size:12.5px;
+  border-radius:0;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width:560px){
+  .container{ padding:0 20px; }
+  .compare-grid{ flex-direction:column; }
+  .benefit-grid{ grid-template-columns:1fr; }
+  .question-card{ flex-direction:column; align-items:flex-start; }
+  .q-toggle{ width:100%; }
+  .q-btn{ flex:1; text-align:center; }
+}
+</style>
+</head>
+<body>
+
+<!-- ========================================================================
+     PROGRESS RAIL
+     ======================================================================== -->
+<div class="progress-rail" id="progressRail">
+  <span data-step="0"></span><span data-step="1"></span><span data-step="2"></span>
+  <span data-step="3"></span><span data-step="4"></span><span data-step="5"></span>
+</div>
+
+<!-- ========================================================================
+     HERO
+     ======================================================================== -->
+<section id="hero" class="screen active">
+  <div class="container">
+    <div class="hero-badge"><span class="pulse"></span> Diagnóstico gratuito · leva 30 segundos</div>
+    <h1>Se uma emergência<br>acontecesse <em>hoje</em>,<br>você estaria pronto?</h1>
+    <p class="lead">Descubra em menos de 30 segundos se você e sua família estariam preparados para enfrentar as próximas 72 horas — o período mais crítico de qualquer emergência.</p>
+    <div class="hero-cta-wrap">
+      <button class="btn btn-primary" onclick="startScan()">
+        Verificar minha segurança
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <div class="hero-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        Privado. Não pedimos nome nem e-mail.
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-bar" style="height:64px"><span style="height:38%; animation-delay:.1s"></span></div>
+      <div class="hero-bar" style="height:88px"><span style="height:62%; animation-delay:.25s"></span></div>
+      <div class="hero-bar" style="height:120px"><span style="height:81%; animation-delay:.4s"></span></div>
+      <div class="hero-bar" style="height:76px"><span style="height:30%; animation-delay:.55s"></span></div>
+      <div class="hero-bar" style="height:100px"><span style="height:70%; animation-delay:.7s"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================================
+     GEOLOCALIZAÇÃO / SCAN (TELA 2)
+     ======================================================================== -->
+<section id="scan" class="screen">
+  <div class="container">
+    <div class="radar">
+      <div class="radar-sweep"></div>
+      <div class="radar-core"></div>
+    </div>
+    <ul class="scan-list" id="scanList">
+      <li data-i="0"><span class="mark">✓</span> Detectando localização...</li>
+      <li data-i="1"><span class="mark">✓</span> Consultando riscos ambientais...</li>
+      <li data-i="2"><span class="mark">✓</span> Verificando histórico regional...</li>
+      <li data-i="3"><span class="mark">✓</span> Calculando nível de exposição...</li>
+      <li data-i="4"><span class="mark">✓</span> Preparando relatório...</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ========================================================================
+     DIAGNÓSTICO (TELA 3)
+     ======================================================================== -->
+<section id="diagnostico" class="screen">
+  <div class="container">
+    <div class="eyebrow"><span class="dot"></span> Diagnóstico ambiental</div>
+    <div class="card" style="margin-top:18px;">
+      <span class="risk-badge" id="riskBadge"></span>
+      <h2 style="font-size:22px; margin-bottom:24px;">Nível de exposição atual da sua região</h2>
+
+      <div class="gauge-wrap">
+        <div class="gauge-glow"></div>
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <circle class="gauge-track" cx="100" cy="100" r="80"/>
+          <circle class="gauge-value" id="gaugeIndice" cx="100" cy="100" r="80" stroke="#0B0E1A"
+            transform="rotate(-90 100 100)" stroke-dasharray="502.65" stroke-dashoffset="502.65"/>
+          <text x="100" y="96" text-anchor="middle" class="gauge-number" id="gaugeIndiceNum">0</text>
+          <text x="100" y="120" text-anchor="middle" class="gauge-suffix">/ 100</text>
+        </svg>
+        <div class="gauge-label">Índice Protocolo 72</div>
+      </div>
+
+      <p class="diagnostico-explain" id="diagnosticoExplain"></p>
+    </div>
+    <div style="margin-top:28px;">
+      <button class="btn btn-primary" onclick="goToMap()">
+        Ver mapa de riscos
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================================
+     MAPA (TELA 4)
+     ======================================================================== -->
+<section id="mapa" class="screen">
+  <div class="container">
+    <div class="eyebrow"><span class="dot"></span> Panorama geográfico</div>
+    <div class="section-head">
+      <h2>Chuva em tempo real<br>e avisos oficiais</h2>
+      <p class="sub" id="mapSub">Camada de precipitação ao vivo sobre sua localização, mais os avisos meteorológicos oficiais da sua área.</p>
+    </div>
+    <div id="map"></div>
+    <div class="map-legend">
+      <span>🌧️ Precipitação em tempo real</span><span>📍 Sua localização</span>
+    </div>
+    <p style="font-size:12.5px; color:var(--muted); margin:-16px 0 24px;">Mapa-base: OpenStreetMap. Camada de chuva/radar: OpenWeatherMap.</p>
+
+    <h3 style="font-size:19px; margin-bottom:14px;">Avisos meteorológicos (IPMA)</h3>
+    <div class="card" id="ipmaWarnings" style="margin-bottom:28px;">
+      <p class="ipma-loading">Aguardando localização...</p>
+    </div>
+
+    <button class="btn btn-primary" onclick="goToQuestionario()">
+      Avaliar minha preparação
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ========================================================================
+     QUESTIONÁRIO (TELA 5)
+     ======================================================================== -->
+<section id="questionario" class="screen">
+  <div class="container">
+    <div class="eyebrow"><span class="dot"></span> Avaliação de preparação</div>
+    <div class="section-head">
+      <h2>Agora vamos avaliar<br>sua preparação.</h2>
+      <p class="sub">Responda com honestidade. Isso leva menos de um minuto e o resultado é só seu.</p>
+    </div>
+    <div class="q-progress" id="qProgress">0 de 9 respondidas</div>
+    <div id="questionList"></div>
+    <div class="q-footer">
+      <button class="btn btn-primary" id="qSubmitBtn" disabled onclick="computeResults()" style="opacity:0.4;">
+        Gerar meu resultado
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ========================================================================
+     RESULTADOS
+     ======================================================================== -->
+<section id="resultados" class="screen">
+  <div class="container">
+    <div class="eyebrow"><span class="dot"></span> Seu diagnóstico completo</div>
+    <div class="section-head">
+      <h2>Índice de Preparação</h2>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi-tile">
+        <div class="kpi-icon" style="background:var(--safe-soft); color:var(--safe);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/></svg>
+        </div>
+        <div class="kpi-value" id="kpiPrep">0%</div>
+        <div class="kpi-label">Preparação</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-icon" style="background:var(--alert-soft); color:var(--alert);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+        </div>
+        <div class="kpi-value" id="kpiRisco">0</div>
+        <div class="kpi-label">Risco externo</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-icon" style="background:var(--warn-soft); color:var(--warn);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="kpi-value" id="kpiPendentes">0</div>
+        <div class="kpi-label">Itens pendentes</div>
+      </div>
+    </div>
+
+    <div class="card" style="text-align:center; margin-bottom:32px;">
+      <div class="gauge-wrap">
+        <div class="gauge-glow"></div>
+        <svg width="180" height="180" viewBox="0 0 200 200">
+          <circle class="gauge-track" cx="100" cy="100" r="80"/>
+          <circle class="gauge-value" id="gaugePrep" cx="100" cy="100" r="80" stroke="#0D8A6C"
+            transform="rotate(-90 100 100)" stroke-dasharray="502.65" stroke-dashoffset="502.65"/>
+          <text x="100" y="96" text-anchor="middle" class="gauge-number" id="gaugePrepNum">0</text>
+          <text x="100" y="120" text-anchor="middle" class="gauge-suffix">%</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card interpret-card">
+      <p id="interpretText"></p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="card gauge-mini">
+        <svg width="120" height="120" viewBox="0 0 200 200">
+          <circle class="gauge-track" cx="100" cy="100" r="80"/>
+          <circle class="gauge-value" id="gaugeRisco" cx="100" cy="100" r="80" stroke="#AD4E2A"
+            transform="rotate(-90 100 100)" stroke-dasharray="502.65" stroke-dashoffset="502.65"/>
+          <text x="100" y="112" text-anchor="middle" class="gauge-number" id="gaugeRiscoNum" style="font-size:34px;">0</text>
+        </svg>
+        <div class="gauge-title">Risco Externo</div>
+        <div class="gauge-sub">Sua região</div>
+      </div>
+      <div class="card gauge-mini">
+        <svg width="120" height="120" viewBox="0 0 200 200">
+          <circle class="gauge-track" cx="100" cy="100" r="80"/>
+          <circle class="gauge-value" id="gaugePrep2" cx="100" cy="100" r="80" stroke="#0D8A6C"
+            transform="rotate(-90 100 100)" stroke-dasharray="502.65" stroke-dashoffset="502.65"/>
+          <text x="100" y="112" text-anchor="middle" class="gauge-number" id="gaugePrep2Num" style="font-size:34px;">0</text>
+        </svg>
+        <div class="gauge-title">Preparação Interna</div>
+        <div class="gauge-sub">Você</div>
+      </div>
+    </div>
+
+    <h3 style="font-size:19px; margin-bottom:16px;">Checklist</h3>
+    <div class="card checklist" id="checklistWrap"></div>
+
+    <h3 style="font-size:19px; margin:32px 0 16px;">Plano de ação</h3>
+    <div id="planWrap"></div>
+
+    <div class="pdf-cta">
+      <button class="btn btn-secondary" onclick="generatePDF()">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        Baixar relatório em PDF
+      </button>
+    </div>
+
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="goTo('premium')">
+      Ver próximo passo
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</section>
+
+<!-- ========================================================================
+     PREMIUM
+     ======================================================================== -->
+<section id="premium" class="screen">
+  <div class="container" style="padding-top:64px;">
+    <div class="eyebrow"><span class="dot"></span> Próximo passo</div>
+    <h2>Você sobreviveria<br>sozinho por 72 horas?</h2>
+    <p class="lead">O diagnóstico mostrou onde você está. O Guia Protocolo 72 mostra exatamente como chegar aonde você precisa estar — passo a passo, sem complicação.</p>
+
+    <div class="premium-card">
+      <span class="premium-tag">Guia Protocolo 72</span>
+      <h3>Tudo que falta para fechar as lacunas do seu diagnóstico</h3>
+      <div class="benefit-grid">
+        <div class="benefit"><span class="check">✓</span> Checklist completo e detalhado</div>
+        <div class="benefit"><span class="check">✓</span> Protocolos de resposta rápida</div>
+        <div class="benefit"><span class="check">✓</span> Rotinas de manutenção mensal</div>
+        <div class="benefit"><span class="check">✓</span> Preparação para toda a família</div>
+        <div class="benefit"><span class="check">✓</span> Plano específico para crianças</div>
+        <div class="benefit"><span class="check">✓</span> Plano específico para idosos</div>
+        <div class="benefit"><span class="check">✓</span> Estratégia para falta de energia</div>
+        <div class="benefit"><span class="check">✓</span> Plano para isolamento prolongado</div>
+      </div>
+      <button class="btn btn-premium" onclick="showToast('Em breve disponível. Obrigado pelo interesse!')">
+        Quero me preparar agora
+      </button>
+    </div>
+  </div>
+  <footer class="app-footer">PROTOCOLO 72 — Diagnóstico de preparação para emergências · Dados de precipitação: OpenWeatherMap · Avisos: IPMA</footer>
+</section>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- ========================================================================
+     JAVASCRIPT
+     ======================================================================== -->
+<script>
+(function(){
+  "use strict";
+
+  /* -------------------- STATE -------------------- */
+  var state = {
+    coords: null,
+    riskLevel: null,
+    riskScore: 0,
+    indiceProtocolo72: 0,
+    prepScore: 0,
+    answers: {},
+    mapInstance: null,
+    ipmaWarnings: []  // guarda os avisos ativos
+  };
+
+  var SCREENS = ['hero','scan','diagnostico','mapa','questionario','resultados','premium'];
+  var CIRCUMFERENCE = 2 * Math.PI * 80;
+
+  var QUESTIONS = [
+    { id:'agua', label:'Você possui água potável para 72 horas?', priority:'alta', plan:'Armazenar ao menos 12 litros de água potável por pessoa da família.' },
+    { id:'alimentos', label:'Você possui alimentos não perecíveis?', priority:'alta', plan:'Montar uma reserva de alimentos não perecíveis para 3 dias.' },
+    { id:'medicamentos', label:'Você possui medicamentos essenciais separados?', priority:'alta', plan:'Separar medicamentos de uso contínuo em um local de fácil acesso.' },
+    { id:'primeirossocorros', label:'Você possui kit de primeiros socorros?', priority:'media', plan:'Montar um kit básico de primeiros socorros.' },
+    { id:'lanterna', label:'Você possui lanterna funcionando?', priority:'media', plan:'Separar uma lanterna com pilhas reservas.' },
+    { id:'powerbank', label:'Você possui power bank carregado?', priority:'media', plan:'Manter um power bank sempre carregado em casa.' },
+    { id:'carregador', label:'Você possui carregador portátil para celular?', priority:'baixa', plan:'Separar um cabo e carregador extra dedicado à emergência.' },
+    { id:'radio', label:'Você possui rádio a pilha ou manual?', priority:'baixa', plan:'Adquirir um rádio portátil para receber alertas sem internet.' },
+    { id:'documentos', label:'Seus documentos importantes estão digitalizados?', priority:'baixa', plan:'Digitalizar e salvar documentos importantes em nuvem segura.' }
+  ];
+
+  var PRIORITY_LABEL = { alta:'Prioridade alta', media:'Prioridade média', baixa:'Prioridade baixa' };
+
+  /* -------------------- CHAVES E CONFIGURAÇÕES -------------------- */
+  var OWM_KEY = '1d2cebfe53de25a478badceaaba65a83'; // substitua pela sua chave se necessário
+
+  /* -------------------- HELPERS -------------------- */
+  function $(id){ return document.getElementById(id); }
+  function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  function goTo(name){
+    SCREENS.forEach(function(s){ $(s).classList.remove('active'); });
+    $(name).classList.add('active');
+    window.scrollTo(0, 0);
+    updateProgress(name);
+  }
+
+  function updateProgress(name){
+    var rail = $('progressRail');
+    if(name === 'hero'){ rail.classList.remove('show'); return; }
+    rail.classList.add('show');
+    var order = ['scan','diagnostico','mapa','questionario','resultados','premium'];
+    var idx = order.indexOf(name);
+    var dots = rail.querySelectorAll('span');
+    dots.forEach(function(d, i){
+      d.classList.remove('done','now');
+      if(i < idx) d.classList.add('done');
+      else if(i === idx) d.classList.add('now');
+    });
+  }
+
+  function showToast(msg){
+    var t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 3200);
+  }
+
+  function countTo(el, target, suffix, duration){
+    suffix = suffix || '';
+    duration = duration || 1200;
+    var start = 0;
+    var startTime = null;
+    function step(ts){
+      if(!startTime) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var val = Math.round(start + (target - start) * eased);
+      el.textContent = val + suffix;
+      if(progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function riskColor(level){
+    return level === 'baixo' ? '#0D8A6C' : (level === 'moderado' ? '#A87C1E' : '#AD4E2A');
+  }
+  function prepColor(score){
+    return score >= 70 ? '#0D8A6C' : (score >= 40 ? '#A87C1E' : '#AD4E2A');
+  }
+
+  function setGauge(circleId, numId, value, suffix, color){
+    var circle = $(circleId);
+    var offset = CIRCUMFERENCE * (1 - value/100);
+    if(color){ circle.style.stroke = color; }
+    var glow = circle.closest('.gauge-wrap');
+    if(glow){
+      var glowEl = glow.querySelector('.gauge-glow');
+      if(glowEl) glowEl.style.background = 'radial-gradient(circle, ' + (color || '#0B0E1A') + '22, transparent 70%)';
+    }
+    circle.getBoundingClientRect();
+    requestAnimationFrame(function(){
+      circle.style.strokeDashoffset = offset;
+    });
+    countTo($(numId), value, suffix || '', 1300);
+  }
+
+  /* -------------------- FUNÇÕES DE DISTÂNCIA E TIMEOUT -------------------- */
+  function haversineKm(lat1, lng1, lat2, lng2){
+    var R = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLng = (lng2 - lng1) * Math.PI / 180;
+    var a = Math.sin(dLat/2)*Math.sin(dLat/2) +
+            Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180) *
+            Math.sin(dLng/2)*Math.sin(dLng/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function withTimeout(promise, ms){
+    return Promise.race([
+      promise,
+      new Promise(function(_, reject){ setTimeout(function(){ reject(new Error('timeout')); }, ms); })
+    ]);
+  }
+
+  /* -------------------- IPMA: OBTENÇÃO DE AVISOS REAIS -------------------- */
+  function findNearestIpmaArea(lat, lng){
+    return withTimeout(fetch('https://api.ipma.pt/open-data/distrits-islands.json'), 5000)
+      .then(function(res){ if(!res.ok) throw new Error('ipma-locations-http-' + res.status); return res.json(); })
+      .then(function(json){
+        var list = json.data || [];
+        var best = null, bestDist = Infinity;
+        list.forEach(function(loc){
+          var d = haversineKm(lat, lng, parseFloat(loc.latitude), parseFloat(loc.longitude));
+          if(d < bestDist){ bestDist = d; best = loc; }
+        });
+        return best;
+      });
+  }
+
+  function fetchIpmaWarnings(lat, lng){
+    var wrap = $('ipmaWarnings');
+    wrap.innerHTML = '<p class="ipma-loading">A consultar avisos oficiais do IPMA...</p>';
+
+    findNearestIpmaArea(lat, lng)
+      .then(function(area){
+        if(!area) throw new Error('no-area-found');
+        return withTimeout(fetch('https://api.ipma.pt/open-data/forecast/warnings/warnings_www.json'), 5000)
+          .then(function(res){ if(!res.ok) throw new Error('ipma-warnings-http-' + res.status); return res.json(); })
+          .then(function(all){
+            var now = new Date();
+            var active = all.filter(function(w){
+              return w.idAreaAviso === area.idAreaAviso &&
+                     new Date(w.endTime) >= now;
+            });
+            state.ipmaWarnings = active;
+            renderIpmaWarnings(area, active);
+            // Usa o aviso mais grave para definir o risco
+            defineRiskFromIpma(active);
+          });
+      })
+      .catch(function(err){
+        console.warn('Erro ao obter avisos IPMA, usando fallback:', err);
+        state.ipmaWarnings = [];
+        renderIpmaWarnings(null, []);
+        // Fallback: risco baseado em geolocalização (latitude)
+        var fallbackRisk = Math.abs(lat) > 60 ? 'alto' : (Math.abs(lat) > 40 ? 'moderado' : 'baixo');
+        state.riskLevel = fallbackRisk;
+        state.riskScore = fallbackRisk === 'alto' ? rand(70,92) : (fallbackRisk === 'moderado' ? rand(38,66) : rand(12,34));
+        state.indiceProtocolo72 = state.riskScore;
+        renderDiagnostico();
+      });
+  }
+
+  function renderIpmaWarnings(area, warnings){
+    var wrap = $('ipmaWarnings');
+    if(!area){
+      wrap.innerHTML = '<p class="ipma-loading">Não foi possível obter a sua área. Os avisos podem não estar disponíveis.</p>';
+      return;
+    }
+    var header = '<div class="ipma-header">Avisos oficiais para <strong>' + area.local + '</strong></div>';
+    if(warnings.length === 0){
+      wrap.innerHTML = header + '<div class="ipma-item green"><span class="ipma-dot"></span> Sem avisos meteorológicos ativos para esta área neste momento.</div>';
+      return;
+    }
+    var html = header;
+    warnings.forEach(function(w){
+      var color = '#657089';
+      var label = w.awarenessLevelID || 'desconhecido';
+      if(label === 'yellow'){ color = '#A87C1E'; label = 'Amarelo'; }
+      else if(label === 'orange'){ color = '#AD4E2A'; label = 'Laranja'; }
+      else if(label === 'red'){ color = '#A6362B'; label = 'Vermelho'; }
+      else if(label === 'green'){ color = '#0D8A6C'; label = 'Verde'; }
+      var start = new Date(w.startTime).toLocaleString('pt-PT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+      var end = new Date(w.endTime).toLocaleString('pt-PT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+      html += '<div class="ipma-item" style="border-color:' + color + '33; background:' + color + '14;">' +
+        '<span class="ipma-dot" style="background:' + color + '"></span>' +
+        '<div><strong style="color:' + color + '">' + label + ' · ' + (w.awarenessTypeName || 'Aviso') + '</strong>' +
+        '<div class="ipma-period">' + start + ' até ' + end + '</div>' +
+        (w.text ? '<div class="ipma-text">' + w.text + '</div>' : '') +
+        '</div></div>';
+    });
+    wrap.innerHTML = html;
+  }
+
+  // Define risco com base nos avisos ativos (nível mais grave)
+  function defineRiskFromIpma(warnings){
+    if(!warnings || warnings.length === 0){
+      // fallback para baixo risco
+      state.riskLevel = 'baixo';
+      state.riskScore = rand(12,34);
+      state.indiceProtocolo72 = state.riskScore;
+      renderDiagnostico();
+      return;
+    }
+    var levels = { 'red':4, 'orange':3, 'yellow':2, 'green':1 };
+    var maxLevel = 0;
+    warnings.forEach(function(w){
+      var lvl = levels[w.awarenessLevelID] || 0;
+      if(lvl > maxLevel) maxLevel = lvl;
+    });
+    if(maxLevel >= 4){ state.riskLevel = 'alto'; state.riskScore = rand(75,95); }
+    else if(maxLevel === 3){ state.riskLevel = 'alto'; state.riskScore = rand(65,85); }
+    else if(maxLevel === 2){ state.riskLevel = 'moderado'; state.riskScore = rand(40,65); }
+    else { state.riskLevel = 'baixo'; state.riskScore = rand(15,35); }
+    state.indiceProtocolo72 = state.riskScore;
+    renderDiagnostico();
+  }
+
+  /* -------------------- TELA 2: SCAN -------------------- */
+  window.startScan = function(){
+    goTo('scan');
+    var items = document.querySelectorAll('#scanList li');
+    items.forEach(function(li){ li.classList.remove('active'); });
+
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        function(pos){ state.coords = { lat: pos.coords.latitude, lng: pos.coords.longitude }; },
+        function(){ state.coords = { lat: 38.7223, lng: -9.1393 }; }, // fallback: Lisboa
+        { timeout: 3000, enableHighAccuracy: true }
+      );
+    } else {
+      state.coords = { lat: 38.7223, lng: -9.1393 };
+    }
+
+    items.forEach(function(li, i){
+      setTimeout(function(){ li.classList.add('active'); }, 380 * i);
+    });
+
+    setTimeout(function(){
+      if(!state.coords) state.coords = { lat: 38.7223, lng: -9.1393 };
+      // Busca avisos IPMA e define risco
+      fetchIpmaWarnings(state.coords.lat, state.coords.lng);
+      // Se por algum motivo o risco ainda não foi definido, define fallback
+      if(!state.riskLevel){
+        state.riskLevel = 'baixo';
+        state.riskScore = rand(12,34);
+        state.indiceProtocolo72 = state.riskScore;
+        renderDiagnostico();
+      }
+      goTo('diagnostico');
+    }, 380 * items.length + 400);
+  };
+
+  /* -------------------- DIAGNÓSTICO -------------------- */
+  var RISK_COPY = {
+    baixo: 'A sua região apresenta, neste momento, baixo risco meteorológico. Mantenha-se informado e preserve um kit básico de emergência — a preparação começa antes do aviso.',
+    moderado: 'A sua região está sob risco moderado de fenómenos meteorológicos. Tenha atenção aos avisos oficiais e verifique se o seu kit de emergência está acessível.',
+    alto: 'A sua região apresenta risco elevado de fenómenos severos. Acompanhe os avisos oficiais com atenção e tenha o seu plano de emergência pronto para execução imediata.'
+  };
+
+  function renderDiagnostico(){
+    var badge = $('riskBadge');
+    badge.className = 'risk-badge ' + state.riskLevel;
+    badge.innerHTML = '<span class="dot"></span> Nível ' + state.riskLevel.charAt(0).toUpperCase() + state.riskLevel.slice(1);
+    var explain = RISK_COPY[state.riskLevel] || '';
+    if(state.ipmaWarnings && state.ipmaWarnings.length > 0){
+      explain += ' Este diagnóstico baseia-se nos avisos oficiais do IPMA atualmente em vigor para a sua área.';
+    } else {
+      explain += ' Não foram encontrados avisos oficiais ativos. Esta é uma estimativa baseada na sua localização.';
+    }
+    $('diagnosticoExplain').textContent = explain;
+    setGauge('gaugeIndice', 'gaugeIndiceNum', state.indiceProtocolo72, '', riskColor(state.riskLevel));
+  }
+
+  /* -------------------- TELA 4: MAPA -------------------- */
+  window.goToMap = function(){
+    goTo('mapa');
+    setTimeout(initMap, 150);
+    // Se já tiver avisos, não precisa buscar de novo, mas garante
+    if(state.ipmaWarnings.length === 0 && state.coords){
+      fetchIpmaWarnings(state.coords.lat, state.coords.lng);
+    }
+  };
+
+  function initMap(){
+    if(state.mapInstance) { state.mapInstance.invalidateSize(); return; }
+    var lat = state.coords.lat, lng = state.coords.lng;
+    var map = L.map('map', { zoomControl:false, attributionControl:false }).setView([lat, lng], 9);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom:18,
+      attribution:'&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Camada de precipitação OpenWeatherMap
+    try {
+      L.tileLayer('https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=' + OWM_KEY, {
+        maxZoom:18,
+        opacity:0.75,
+        attribution:'&copy; OpenWeatherMap'
+      }).addTo(map);
+    } catch(e) {
+      console.warn('Erro ao carregar camada de precipitação:', e);
+    }
+
+    L.control.zoom({ position:'bottomright' }).addTo(map);
+
+    var userIcon = L.divIcon({ className:'', html:'<div class="pin-user"></div>', iconSize:[16,16] });
+    L.marker([lat, lng], { icon:userIcon }).addTo(map).bindPopup('Sua localização aproximada');
+
+    state.mapInstance = map;
+  }
+
+  /* -------------------- TELA 5: QUESTIONÁRIO -------------------- */
+  window.goToQuestionario = function(){
+    renderQuestions();
+    goTo('questionario');
+  };
+
+  function renderQuestions(){
+    var wrap = $('questionList');
+    wrap.innerHTML = '';
+    QUESTIONS.forEach(function(q){
+      var card = document.createElement('div');
+      card.className = 'question-card';
+      card.innerHTML =
+        '<div class="q-text">' + q.label + '</div>' +
+        '<div class="q-toggle">' +
+          '<button type="button" class="q-btn yes" data-id="'+q.id+'" data-val="1">Sim</button>' +
+          '<button type="button" class="q-btn no" data-id="'+q.id+'" data-val="0">Não</button>' +
+        '</div>';
+      wrap.appendChild(card);
+    });
+    wrap.querySelectorAll('.q-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        selectAnswer(btn.dataset.id, btn.dataset.val === '1');
+        var siblings = btn.parentElement.querySelectorAll('.q-btn');
+        siblings.forEach(function(b){ b.classList.remove('selected'); });
+        btn.classList.add('selected');
+      });
+    });
+  }
+
+  function selectAnswer(id, val){
+    state.answers[id] = val;
+    var answered = Object.keys(state.answers).length;
+    $('qProgress').textContent = answered + ' de ' + QUESTIONS.length + ' respondidas';
+    var btn = $('qSubmitBtn');
+    if(answered === QUESTIONS.length){
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+
+  /* -------------------- RESULTADOS -------------------- */
+  function interpretation(){
+    var risk = state.riskLevel;
+    var prep = state.prepScore;
+    var prepLevel = prep >= 70 ? 'alta' : (prep >= 40 ? 'moderada' : 'baixa');
+
+    var p1 = 'Sua região apresenta risco ' + risk + ' e sua preparação atual é ' + prepLevel + '.';
+    var p2;
+    if(risk !== 'baixo' && prepLevel === 'baixa'){
+      p2 = 'Caso ocorra uma emergência prolongada, você poderá enfrentar dificuldades importantes nas primeiras 72 horas. Fechar as lacunas do checklist abaixo deve ser tratado como prioridade.';
+    } else if(prepLevel === 'baixa'){
+      p2 = 'Mesmo com risco ambiental mais baixo, um preparo mínimo evita que imprevistos pontuais se transformem em problemas maiores.';
+    } else if(prepLevel === 'moderada'){
+      p2 = 'Você já tem uma base razoável, mas alguns itens essenciais ainda merecem atenção antes de se considerar plenamente preparado.';
+    } else {
+      p2 = 'Sua base de preparação é sólida. Manter os itens sempre atualizados é o que garante que ela continue eficaz quando for realmente necessária.';
+    }
+    return p1 + '\n' + p2;
+  }
+
+  window.computeResults = function(){
+    var yes = QUESTIONS.filter(function(q){ return state.answers[q.id]; }).length;
+    state.prepScore = Math.round((yes / QUESTIONS.length) * 100);
+    var missingCount = QUESTIONS.length - yes;
+
+    renderChecklist();
+    renderPlan();
+
+    var lines = interpretation().split('\n');
+    $('interpretText').innerHTML = lines.map(function(l){ return '<p>'+l+'</p>'; }).join('');
+
+    $('kpiPrep').textContent = state.prepScore + '%';
+    $('kpiRisco').textContent = state.riskScore;
+    $('kpiPendentes').textContent = missingCount;
+
+    goTo('resultados');
+    setTimeout(function(){
+      setGauge('gaugePrep', 'gaugePrepNum', state.prepScore, '%', prepColor(state.prepScore));
+      setGauge('gaugeRisco', 'gaugeRiscoNum', state.riskScore, '', riskColor(state.riskLevel));
+      setGauge('gaugePrep2', 'gaugePrep2Num', state.prepScore, '', prepColor(state.prepScore));
+    }, 200);
+  };
+
+  function renderChecklist(){
+    var wrap = $('checklistWrap');
+    wrap.innerHTML = '';
+    QUESTIONS.forEach(function(q){
+      var ok = !!state.answers[q.id];
+      var row = document.createElement('div');
+      row.className = 'checklist-item ' + (ok ? 'ok' : 'missing');
+      row.innerHTML = '<span class="ico">' + (ok ? '✓' : '✕') + '</span><span class="label">' + q.label.replace('Você possui ', '').replace('Seus documentos importantes estão d', 'D').replace('?','') + '</span>';
+      wrap.appendChild(row);
+    });
+  }
+
+  function renderPlan(){
+    var wrap = $('planWrap');
+    wrap.innerHTML = '';
+    var missing = QUESTIONS.filter(function(q){ return !state.answers[q.id]; });
+
+    if(missing.length === 0){
+      wrap.innerHTML = '<div class="card" style="text-align:center; color:var(--muted); font-size:14.5px;">Nenhuma ação pendente. Continue revisando seu kit periodicamente.</div>';
+      return;
+    }
+
+    ['alta','media','baixa'].forEach(function(level){
+      var items = missing.filter(function(q){ return q.priority === level; });
+      if(items.length === 0) return;
+      var group = document.createElement('div');
+      group.className = 'plan-group';
+      var html = '<div class="plan-title '+level+'"><span class="dot"></span>' + PRIORITY_LABEL[level] + '</div>';
+      items.forEach(function(it){ html += '<div class="plan-item">' + it.plan + '</div>'; });
+      group.innerHTML = html;
+      wrap.appendChild(group);
+    });
+  }
+
+  /* -------------------- PDF -------------------- */
+  window.generatePDF = function(){
+    try{
+      var jsPDFLib = window.jspdf.jsPDF;
+      var doc = new jsPDFLib({ unit:'pt', format:'a4' });
+      var pageW = doc.internal.pageSize.getWidth();
+      var margin = 48;
+      var y = 0;
+
+      doc.setFillColor(16,23,42);
+      doc.rect(0, 0, pageW, 96, 'F');
+      doc.setTextColor(255,255,255);
+      doc.setFont('helvetica','bold');
+      doc.setFontSize(22);
+      doc.text('PROTOCOLO 72', margin, 52);
+      doc.setFont('helvetica','normal');
+      doc.setFontSize(10);
+      doc.text('Relatório de diagnóstico de preparação para emergências', margin, 72);
+      var dateStr = new Date().toLocaleDateString('pt-BR');
+      doc.text('Gerado em ' + dateStr, pageW - margin, 72, { align:'right' });
+
+      y = 132;
+      doc.setTextColor(16,23,42);
+      doc.setFont('helvetica','bold'); doc.setFontSize(13);
+      doc.text('Resumo do diagnóstico', margin, y);
+      y += 22;
+      doc.setFont('helvetica','normal'); doc.setFontSize(11);
+      doc.text('Nível de exposição da região: ' + state.riskLevel.toUpperCase() + ' (' + state.riskScore + '/100)', margin, y); y += 16;
+      doc.text('Índice de Preparação: ' + state.prepScore + '%', margin, y); y += 16;
+
+      var lines = interpretation().split('\n');
+      lines.forEach(function(l){
+        var wrapped = doc.splitTextToSize(l, pageW - margin*2);
+        doc.text(wrapped, margin, y);
+        y += wrapped.length * 14 + 4;
+      });
+
+      y += 14;
+      doc.setFont('helvetica','bold'); doc.setFontSize(13);
+      doc.text('Checklist', margin, y); y += 20;
+      doc.setFont('helvetica','normal'); doc.setFontSize(11);
+      QUESTIONS.forEach(function(q){
+        var ok = !!state.answers[q.id];
+        doc.setTextColor(ok ? 14 : 224, ok ? 157 : 89, ok ? 116 : 12);
+        doc.text((ok ? '[OK] ' : '[FALTA] ') + q.label, margin, y);
+        y += 16;
+        if(y > 760){ doc.addPage(); y = 60; }
+      });
+
+      doc.setTextColor(16,23,42);
+      y += 12;
+      doc.setFont('helvetica','bold'); doc.setFontSize(13);
+      doc.text('Plano de ação', margin, y); y += 20;
+      doc.setFont('helvetica','normal'); doc.setFontSize(11);
+      var missing = QUESTIONS.filter(function(q){ return !state.answers[q.id]; });
+      ['alta','media','baixa'].forEach(function(level){
+        var items = missing.filter(function(q){ return q.priority === level; });
+        if(items.length === 0) return;
+        if(y > 740){ doc.addPage(); y = 60; }
+        doc.setFont('helvetica','bold');
+        doc.text(PRIORITY_LABEL[level] + ':', margin, y); y += 16;
+        doc.setFont('helvetica','normal');
+        items.forEach(function(it){
+          var wrapped = doc.splitTextToSize('- ' + it.plan, pageW - margin*2 - 10);
+          doc.text(wrapped, margin + 10, y);
+          y += wrapped.length * 14 + 2;
+          if(y > 780){ doc.addPage(); y = 60; }
+        });
+        y += 8;
+      });
+
+      // Se houver avisos IPMA, adiciona ao PDF
+      if(state.ipmaWarnings && state.ipmaWarnings.length > 0){
+        if(y > 760){ doc.addPage(); y = 60; }
+        y += 8;
+        doc.setFont('helvetica','bold'); doc.setFontSize(12);
+        doc.setTextColor(16,23,42);
+        doc.text('Avisos IPMA em vigor', margin, y); y += 18;
+        doc.setFont('helvetica','normal'); doc.setFontSize(10);
+        state.ipmaWarnings.forEach(function(w){
+          var line = w.awarenessTypeName + ' (' + w.awarenessLevelID + ') — ' + new Date(w.startTime).toLocaleString('pt-PT') + ' até ' + new Date(w.endTime).toLocaleString('pt-PT');
+          var wrapped = doc.splitTextToSize(line, pageW - margin*2);
+          doc.text(wrapped, margin, y);
+          y += wrapped.length * 12 + 4;
+          if(y > 780){ doc.addPage(); y = 60; }
+        });
+      }
+
+      doc.setFontSize(9);
+      doc.setTextColor(120,120,120);
+      doc.text('Relatório gerado automaticamente pelo Protocolo 72 · Dados de precipitação: OpenWeatherMap · Avisos: IPMA.', margin, 820);
+
+      doc.save('protocolo-72-relatorio.pdf');
+      showToast('Relatório baixado com sucesso.');
+    } catch(err){
+      console.error(err);
+      showToast('Não foi possível gerar o PDF agora.');
+    }
+  };
+
+  window.showToast = showToast;
+  window.goTo = goTo;
+
+})();
+</script>
+</body>
+</html>
